@@ -12,7 +12,34 @@ where *i* is the index of your sample number
 The scripts in this repository batch process live cell imaging data. Below is the directory structure containing all of the inputs and outputs involved in the scripts, with a description of each folder and its contents:
 
 ```
-<project-root>/ ├── BF/ │    TIFF images of brightfield channel split from .nd2 files ├── PI/ │    TIFF images of PI channel split from .nd2 files │ └── PI_segmented/ │    Segmentation results of PI channel images, saved as multi-framelabeled images ├── YFP/ │    TIFF images of YFP channel split from .nd2 files │ └── YFP_segmented/ │    Segmentation results of YFP channel images, saved as multi-framelabeled images ├── CTV/ │    TIFF images of CTV channel split from .nd2 files │ └── CTV_segmented/ │    Segmentation results of CTV channel images, saved as multi-framelabeled images ├── tracking/ │    TrackMate outputs(spots.csv, tracks.csv) of the CTV channel labeled images │ ├── combined_spots_relabeled/ │    spots.csv files from TrackMate of (PI and YFP channels) concatenated labeled images with the source of each label updated │ └── xy[i]_distance_csv_files/ │    Distance between each targets and its k nearest effector in each frame │    Approaching pairs of targets and effectors │    Pairs of targets and effectors under persistent contact ├── filtered_segmentation/ │    PI and YFP labeled images with dead CTls and debris removed │ └── concatenated_segmentation/ │    Concatenated labels from PI and YFP filtered labels, with a lookup table indicating the source (YFP or PI) of each label │    Raw spots.csv and tracks.csv files from TrackMate of (PI and YFP channels) concatenated labeled images (does not have the source of each label updated) 
+<project-root>/
+├── BF/
+│    TIFF images of brightfield channel split from .nd2 files
+├── PI/
+│    TIFF images of PI channel split from .nd2 files
+│ └── PI_segmented/
+│        Segmentation results of PI channel images, saved as multi-framelabeled images
+├── YFP/
+│    TIFF images of YFP channel split from .nd2 files
+│ └── YFP_segmented/
+│        Segmentation results of YFP channel images, saved as multi-framelabeled images
+├── CTV/
+│    TIFF images of CTV channel split from .nd2 files
+│ └── CTV_segmented/
+│        Segmentation results of CTV channel images, saved as multi-framelabeled images
+├── tracking/
+│    TrackMate outputs(spots.csv, tracks.csv) of the CTV channel labeled images
+│ ├── combined_spots_relabeled/
+│        spots.csv files from TrackMate of (PI and YFP channels) concatenated labeled images with the source of each label updated
+│ └── xy[i]_distance_csv_files/
+│        Distance between each targets and its k nearest effector in each frame
+│        Approaching pairs of targets and effectors
+│        Pairs of targets and effectors under persistent contact
+├── filtered_segmentation/
+│    PI and YFP labeled images with dead CTls and debris removed
+│ └── concatenated_segmentation/
+│        Concatenated labels from PI and YFP filtered labels, with a lookup table indicating the source (YFP or PI) of each label
+│        Raw spots.csv and tracks.csv files from TrackMate of (PI and YFP channels) concatenated labeled images (without the source of each label) 
 ```
 
 ***
