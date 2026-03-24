@@ -2,61 +2,112 @@
 
 ## Directory structure
 
-Before beginning your analysis, create a master folder and upload your `.nd2` files. Follow the naming convention:
-
-`date_(optional) one word summary of experiment purpose_xy\[i]`
-
-where *i* is the index of your sample number
+Before beginning your analysis, create a master folder `yyyy-mm-dd_live_cell_imaging` and upload your `.nd2` files. Follow the naming convention (**DO NOT** leave spaces in the file name):   
+`yyyy-mm-dd_(optional summary of experiment purporse)_sample[i]_(optional summary of sample type).nd2`   
+where `i` is the index of your sample number   
 
 
 The scripts in this repository batch process live cell imaging data. Below is the directory structure containing all of the inputs and outputs involved in the scripts, with a description of each folder and its contents:
 
 ```
-<project-root>/
-├── BF/
-│    TIFF images of brightfield channel split from .nd2 files
-├── PI/
-│    TIFF images of PI channel split from .nd2 files
-│ └── PI_segmented/
-│        Segmentation results of PI channel images, saved as multi-framelabeled images
-├── YFP/
-│    TIFF images of YFP channel split from .nd2 files
-│ └── YFP_segmented/
-│        Segmentation results of YFP channel images, saved as multi-framelabeled images
-├── CTV/
-│    TIFF images of CTV channel split from .nd2 files
-│ └── CTV_segmented/
-│        Segmentation results of CTV channel images, saved as multi-framelabeled images
-├── tracking/
-│    TrackMate outputs(spots.csv, tracks.csv) of the CTV channel labeled images
-│ ├── combined_spots_relabeled/
-│        spots.csv files from TrackMate of (PI and YFP channels) concatenated labeled images with the source of each label updated
-│ └── xy[i]_distance_csv_files/
-│        Distance between each targets and its k nearest effector in each frame
-│        Approaching pairs of targets and effectors
-│        Pairs of targets and effectors under persistent contact
-├── filtered_segmentation/
-│    PI and YFP labeled images with dead CTls and debris removed
-│ └── concatenated_segmentation/
-│        Concatenated labels from PI and YFP filtered labels, with a lookup table indicating the source (YFP or PI) of each label
-│        Raw spots.csv and tracks.csv files from TrackMate of (PI and YFP channels) concatenated labeled images (without the source of each label) 
+yyyy-mm-dd_live_cell_imaging/
+├── yyyy-mm-dd_channel1/
+│   <image stacks of channel1 split from .nd2 files> 
+│   └── yyyy-mm-dd_channel1_segmented
+│       <labeled image stacks of the segmentation results of channel1 images>
+│
+├── yyyy-mm-dd_channel2/
+│   <image stacks of channel2 split from .nd2 files> 
+│   └── yyyy-mm-dd_channel1_segmented
+│       <labeled image stacks of the segmentation results of channel2 images>
+│
+├── yyyy-mm-dd_channel3/
+│   <image stacks of channel3 split from .nd2 files> 
+│   └── yyyy-mm-dd_channel1_segmented
+│       <labeled image stacks of the segmentation results of channel3 images>
+│
+├── yyyy-mm-dd_channel4/
+│   <image stacks of channel1 split from .nd2 files> 
+│   └── yyyy-mm-dd_channel4_segmented
+│       <labeled image stacks of the segmentation results of channel4 images>
+│
+├── (optional)yyyy-mm-dd_filtered_segmentation/
+│   <post-processed labeled image stacks with misidentified debris removed> 
+│   └── yyyy-mm-dd_concatenated segmentation/
+│       <labeled image stacks concatenated from filtered YFP and PI channels>
+│       <lookup table indicating the source (YFP or PI) of each label in the concatenated stack>
+│
+├── yyyy-mm-dd_tracking/
+│   <effector cells spots>
+│   <effector cells tracks>
+│   <effector cells tracking metafile>
+│   <target cell spots>
+│   <target cell tracks>
+│   <target cells tracking metafile>
+│   └── (optional)yyyy-mm-dd_combined_spots_relabeled/
+│       <target cells spots with the source of each spot (YFP or PI) updated>
+│
+├── yyyy-mm-dd_metrics/
+│   ├── yyyy-mm-dd_measurements/
+│   │   <target cell metrics>
+│   ├── yyyy-mm-dd_leakages/
+│   │   <target cell leakages>
+│   └── yyyy-mm-dd_sample[i]_distance_csv_files/ 
+│       <distance between each targets and its k nearest effector in each frame>
+│       <pairs of targets and effectors approaching each other over multiple frames>
+│       <pairs of targets and effectors under persistent contact over multiple frames>
+│
+└── yyyy-mm-dd_figures/
+│   <figures generated from visualization script>
 ```
+
+***
+
+## Setting up interactive sessions on O2
+#### Running FIJI on O2
+1. Launch a Desktop Mate session with appropriate WallTime and memory.
+2. *(First-time users)* To install FIJI, click on the terminal icon and enter the following command:
+    `/n/app/bias/install/fiji/fiji-imagej.sh --install`
+3. Use FIJI as usual
+
+#### Running Jupyter Notebook on O2
+Launch a Jupyter session:   
+1. Modules to be preloaded:   
+    `gcc/14.2.0 python/3.13.1 cuda/12.8 conda/miniforge3`
+2. Partition (consult "How to choose a partition in O2" in the O2 documentation for more details):   
+   **short/ medium/ long** for normal CPU tasks   
+   **priority** if only running one job that day and would like shorter wait time   
+   **gpu-quad** if require gpu resources
+3. *(If requested gpu resources)* GPUs: `1`
+4. Request appropriate WallTime and memory.
+5. Jupyter Environment:   
+    `conda activate path_to_environment`
+6. Jupyter extra arguments:   
+    `--notebook-dir=$HOME`
+7. Check `Enable JupyterLab`
 
 ***
 
 ## Workflow
 
-1. Run `ND2_split_channels_to_TIFF.ijm` in ImageJ. This script will name the tiff files according to the order they are acquired in. Afterwards, create a folder for each channel and move the tiff files to their respective folders.
-2. Run `Cellpose_Segment_TimeSeries_O2.ipynb` and `StarDist_Segment_TimeSeries_O2.ipynb`. Provide the path to the **master folder**, and the scripts will batch process the segmentation.
-3. Run `Labels_PostProcessing.ipynb` on PI and YFP channel labeled images to remove PI+ CTLs and debris. This scripts needs to be run manually on each inividual labeled image, because the filters should be set based on the metrics of the labels. However, the only thing that needs to be changed is the sample index.
-4. Run TrackMate on the CTV channel labeled images and create a **tracking** folder to save the outputs (`spots.csv`, `tracks.csv`). Follow the naming convention:
+1. Run `ND2_split_channels_to_TIFF.ijm` in ImageJ. This script will name the tiff files according to the order they are acquired in. Afterwards, reanme the tiff files, replacing ImageJ's default numbering `-C[i]` with the correct `_ChannelName`. Create a folder for each channel `yyyy-mm-dd_ChannelName`, and move the tiff files to their respective folders.
+2. *(Optional)* For selected channel(s), run `Rolling_ball_BG_denoise.ijm` in ImageJ. Move the raw images to somewhere outside the master folder, and proceed to segmentation with the background corrected images.
+3. Run `Cellpose_Segment_TimeSeries_O2.ipynb` on the cytoplasm channel(s) and `StarDist_Segment_TimeSeries_O2.ipynb` on the nuclei channel(s).
+4. *(Optional)* For selected channel(s), run `Labels_PostProcessing.ipynb` to join fragmented labels and remove misidentified debris. Based on the size distribution graphs and metrics, set the size cutoff(s) to remove unwanted labels.
+5. *(for YFP/iRFP670/PI setup)* Run only the code block in `Batch_Concatenate_Labels.ipynb`, for concatenating the filtered iRFP670 and PI labels.  
+6. Run TrackMate on the CTV (*effector*) and concatenated (*target*) labels or the CTV (*effector*) and mCherry (*target*) labels and create `yyyy-mm-dd_tracking` folder to save the outputs (`spots`, `tracks`, `metafile`). Follow the naming convention:
 
-`date_(optional) one word summary of experiment purpose_xy\[i]_effector_spots (or tracks)`
+    `yyyy-mm-dd_sample[i]_effector_spots.csv`   
+    `yyyy-mm-dd_sample[i]_effector_tracks.csv`   
+    `yyyy-mm-dd_sample[i]_effector_TrackMate.xml`   
+    `yyyy-mm-dd_sample[i]_target_spots.csv`   
+    `yyyy-mm-dd_sample[i]_target_tracks.csv`   
+    `yyyy-mm-dd_sample[i]_target_TrackMate.xml`
 
-5. Run `Batch_Concatenate_Labels.ipynb`. Provide the path to the **master folder**. First only run the code block to batch process the concatenation.
-6. Run TrackMate on the (PI and YFP channels) concatenated labeled images and save the outputs (`spots.csv`, `tracks.csv`) in the **concatenated_segmentation** folder. Follow the naming convention:
-
-`date_(optional) one word summary of experiment purpose_xy\[i]_target_combined_spots (or tracks)`
-
-7. Return to `Batch_Concatenate_Labels.ipynb` and run the code block to batch relabel the `spots.csv` files.
-8. Run `Manipulate_Distance_Info_from_Tracking.ipynb` to calculate the distance, identify the interactions, and visualize the interaction kinetics.
+7. *(for YFP/iRFP670/PI setup)* Run the relabel and quality check code blocks in  `Batch_Concatenate_Labels.ipynb`, for updating the source of each target in the `spots` file.
+8. Collect metrics:   
+    8a. *(for YFP/iRFP670/PI setup)* Run `Measure_Metrics_across_Frames.ipynb` to record target cell metrics.   
+    8b. *(for GFP/mCherry setup)* Run `Detect_Nuclear_Leakage.ipynb` to record target cell nuclear damages.
+9. Identify effector-target interactions and visualize interaction and killing kinetics:   
+    9a. *(for CTV/YFP/iRFP670/PI setup)* Run `Manipulate_DistanceInfo_from_Tracking.ipynb`.   
+    9b. *(for CTV/GFP/mCherry setup)* Run `Manipulate_DistanceInfo_with_Reporter.ipynb`.   
