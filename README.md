@@ -81,21 +81,27 @@ Launch a Jupyter session:
 3. *(If requested gpu resources)* GPUs: `1`
 4. Request appropriate WallTime and memory.
 5. Jupyter Environment:   
-    `conda activate path_to_environment`
+    `conda activate /n/data1/hms/immunology/sharpe/lab/CHIME_live_cell_image_analysis/cellpose-env`   
+    or   
+    `conda activate /n/data1/hms/immunology/sharpe/lab/CHIME_live_cell_image_analysis/stardist-env`
 6. Jupyter extra arguments:   
-    `--notebook-dir=$HOME`
+    `--notebook-dir=conda activate /n/data1/hms/immunology/sharpe/lab/CHIME_live_cell_image_analysis/live_cell_imaging_scripts`
 7. Check `Enable JupyterLab`
 
 ***
 
 ## Workflow
 
-1. Run `ND2_split_channels_to_TIFF.ijm` in ImageJ. This script will name the tiff files according to the order they are acquired in. Afterwards, reanme the tiff files, replacing ImageJ's default numbering `-C[i]` with the correct `_ChannelName`. Create a folder for each channel `yyyy-mm-dd_ChannelName`, and move the tiff files to their respective folders.
-2. *(Optional)* For selected channel(s), run `Rolling_ball_BG_denoise.ijm` in ImageJ. Move the raw images to somewhere outside the master folder, and proceed to segmentation with the background corrected images.
-3. Run `Cellpose_Segment_TimeSeries_O2.ipynb` on the cytoplasm channel(s) and `StarDist_Segment_TimeSeries_O2.ipynb` on the nuclei channel(s).
-4. *(Optional)* For selected channel(s), run `Labels_PostProcessing.ipynb` to join fragmented labels and remove misidentified debris. Based on the size distribution graphs and metrics, set the size cutoff(s) to remove unwanted labels.
-5. *(for YFP/iRFP670/PI setup)* Run only the code block in `Batch_Concatenate_Labels.ipynb`, for concatenating the filtered iRFP670 and PI labels.  
-6. Run TrackMate on the CTV (*effector*) and concatenated (*target*) labels or the CTV (*effector*) and mCherry (*target*) labels and create `yyyy-mm-dd_tracking` folder to save the outputs (`spots`, `tracks`, `metafile`). Follow the naming convention:
+1. Upload time-lapse images to O2.   
+    **Via command line:**
+    `scp path_to_image_file your_hms_id@transfer.rc.hms.harvard.edu:/path_to_target_folder`   
+    *Tip*: use `/*.nd2` at the end of the image file path to upload all `.nd2` files in the folder at once.
+3. Run `ND2_split_channels_to_TIFF.ijm` in ImageJ. This script will name the tiff files according to the order they are acquired in. Afterwards, reanme the tiff files, replacing ImageJ's default numbering `-C[i]` with the correct `_ChannelName`. Create a folder for each channel `yyyy-mm-dd_ChannelName`, and move the tiff files to their respective folders.
+4. *(Optional)* For selected channel(s), run `Rolling_ball_BG_denoise.ijm` in ImageJ. Move the raw images to somewhere outside the master folder, and proceed to segmentation with the background corrected images.
+5. Run `Cellpose_Segment_TimeSeries_O2.ipynb` on the cytoplasm channel(s) and `StarDist_Segment_TimeSeries_O2.ipynb` on the nuclei channel(s).
+6. *(Optional)* For selected channel(s), run `Labels_PostProcessing.ipynb` to join fragmented labels and remove misidentified debris. Based on the size distribution graphs and metrics, set the size cutoff(s) to remove unwanted labels.
+7. *(for YFP/iRFP670/PI setup)* Run only the code block in `Batch_Concatenate_Labels.ipynb`, for concatenating the filtered iRFP670 and PI labels.  
+8. Run TrackMate on the CTV (*effector*) and concatenated (*target*) labels or the CTV (*effector*) and mCherry (*target*) labels and create `yyyy-mm-dd_tracking` folder to save the outputs (`spots`, `tracks`, `metafile`). Follow the naming convention:
 
     `yyyy-mm-dd_sample[i]_effector_spots.csv`   
     `yyyy-mm-dd_sample[i]_effector_tracks.csv`   
@@ -104,10 +110,10 @@ Launch a Jupyter session:
     `yyyy-mm-dd_sample[i]_target_tracks.csv`   
     `yyyy-mm-dd_sample[i]_target_TrackMate.xml`
 
-7. *(for YFP/iRFP670/PI setup)* Run the relabel and quality check code blocks in  `Batch_Concatenate_Labels.ipynb`, for updating the source of each target in the `spots` file.
-8. Collect metrics:   
+9. *(for YFP/iRFP670/PI setup)* Run the relabel and quality check code blocks in  `Batch_Concatenate_Labels.ipynb`, for updating the source of each target in the `spots` file.
+10. Collect metrics:   
     8a. *(for YFP/iRFP670/PI setup)* Run `Measure_Metrics_across_Frames.ipynb` to record target cell metrics.   
     8b. *(for GFP/mCherry setup)* Run `Detect_Nuclear_Leakage.ipynb` to record target cell nuclear damages.
-9. Identify effector-target interactions and visualize interaction and killing kinetics:   
+11. Identify effector-target interactions and visualize interaction and killing kinetics:   
     9a. *(for CTV/YFP/iRFP670/PI setup)* Run `Manipulate_DistanceInfo_from_Tracking.ipynb`.   
     9b. *(for CTV/GFP/mCherry setup)* Run `Manipulate_DistanceInfo_with_Reporter.ipynb`.   
